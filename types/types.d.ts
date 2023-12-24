@@ -1,3 +1,4 @@
+import { FormItem } from './form.d';
 import React, { ReactNode } from 'react';
 import {
     Page,
@@ -24,6 +25,7 @@ import {
     AppMenuItem
 } from './layout';
 import { Demo, LayoutType, SortOrderType, CustomEvent, ChartDataState, ChartOptionsState, AppMailSidebarItem, AppMailReplyProps, AppMailProps } from './demo';
+import './next-auth';
 
 type ChildContainerProps = {
     children: ReactNode;
@@ -58,5 +60,6 @@ export type {
     AppMailSidebarItem,
     AppMailReplyProps,
     AppMailProps,
-    AppMenuItem
+    AppMenuItem,
+    FormItem
 };

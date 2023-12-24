@@ -4365,8 +4365,8 @@
   background: #ffffff;
   color: #495057;
   padding: 0 1.5rem 2rem 1.5rem;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+  /* border-top-left-radius: 6px;
+  border-top-right-radius: 6px; */
 }
 .p-dialog .p-dialog-content:last-of-type {
   border-bottom-right-radius: 6px;
