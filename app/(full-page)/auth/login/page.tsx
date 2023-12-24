@@ -13,6 +13,7 @@ import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../../../../components/form/FormInput';
 import FormPassword from '../../../../components/form/FormPassword';
+import { useRouter } from 'next/navigation';
 
 const schema = z.object({
     email: z.string().email().min(1, { message: 'Required' }),
@@ -20,6 +21,7 @@ const schema = z.object({
 });
 
 const LoginPage = () => {
+    const router = useRouter();
     const [checked, setChecked] = useState(false);
     const toast = useRef<Toast>(null);
     const [submitting, setSubmitting] = useState(false);
@@ -40,15 +42,25 @@ const LoginPage = () => {
             callbackUrl: `${window.location.origin}`
         });
         if (res?.error) {
+            setSubmitting(false);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Login failed',
                 detail: res.error,
                 life: 3000
             });
-        }
+        } else {
+            setSubmitting(false);
 
-        setSubmitting(false);
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Welcome back',
+                life: 3000
+            });
+            setTimeout(() => {
+                router.push('/');
+            }, 1000);
+        }
     };
 
     return (

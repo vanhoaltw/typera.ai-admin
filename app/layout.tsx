@@ -5,6 +5,7 @@ import '../styles/layout/layout.scss';
 import '../styles/demo/Demos.scss';
 import { Metadata } from 'next';
 import Provider from './provider';
+import { getNextAuthServerSession } from '../configs/auth';
 
 interface RootLayoutProps {
     children: React.ReactNode;
@@ -27,14 +28,16 @@ export const metadata: Metadata = {
     }
 };
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+    const session = await getNextAuthServerSession();
+
     return (
         <html lang="en" suppressHydrationWarning>
             <head>
                 <link id="theme-css" href={`/themes/lara-light-indigo/theme.css`} rel="stylesheet"></link>
             </head>
             <body>
-                <Provider>{children}</Provider>
+                <Provider session={session}>{children}</Provider>
             </body>
         </html>
     );

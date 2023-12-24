@@ -1,67 +1,61 @@
 import { NextAuthOptions, getServerSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { initializeApollo } from './apolloClient';
+import { LOGIN } from '../graphql/mutation';
+
+const secret = process.env.NEXTAUTH_SECRET || process.env.NEXT_PUBLIC_NEXTAUTH_SECRET;
 
 const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
             name: 'my-project',
             credentials: {
-                email: {
-                    label: 'email',
-                    type: 'email',
-                    placeholder: 'jsmith@example.com'
-                },
+                email: { label: 'email', type: 'email' },
                 password: { label: 'Password', type: 'password' }
             },
             async authorize(credentials, req) {
                 const payload = {
                     email: credentials?.email,
-                    password: credentials?.password
+                    password: credentials?.password,
+                    platform: 'web'
                 };
 
-                const res = await fetch('https://cloudcoders.azurewebsites.net/api/tokens', {
-                    method: 'POST',
-                    body: JSON.stringify(payload),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                const res = await initializeApollo().mutate({
+                    mutation: LOGIN,
+                    variables: payload
                 });
 
-                const user = await res.json();
-                if (!res.ok) {
+                const user = res.data.login;
+
+                if (!user) {
                     throw new Error(user.message);
-                }
-                // If no error and we have user data, return it
-                if (res.ok && user) {
+                } else {
                     return user;
                 }
-
-                // Return null if user data could not be retrieved
-                return null;
             }
         })
         // ...add more providers here
     ],
-    secret: process.env.JWT_SECRET,
+    secret,
     pages: {
         signIn: '/auth/login'
     },
     callbacks: {
-        async jwt({ token, user, account }) {
+        async jwt({ token, user, account }: any) {
             if (account && user) {
                 return {
                     ...token,
+                    ...user?.user,
                     accessToken: user?.token
-                    // refreshToken: user.refreshToken
                 };
             }
 
             return token;
         },
 
-        async session({ session, token }) {
+        async session({ session, token }: any) {
             session.user.accessToken = token?.accessToken as string;
-
+            session.user.image = token?.avatar;
             return session;
         }
     },
@@ -73,4 +67,6 @@ const getCurrentUser = async () => {
     return session?.user;
 };
 
-export { authOptions, getCurrentUser };
+const getNextAuthServerSession = () => getServerSession(authOptions);
+
+export { authOptions, getCurrentUser, getNextAuthServerSession };
