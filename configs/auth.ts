@@ -4,7 +4,7 @@ import { initializeApollo } from './apolloClient';
 import { LOGIN } from '../graphql/mutation';
 
 const secret = process.env.NEXTAUTH_SECRET || process.env.NEXT_PUBLIC_NEXTAUTH_SECRET;
-
+console.log('secret');
 const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
