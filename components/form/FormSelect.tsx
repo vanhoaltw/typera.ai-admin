@@ -3,7 +3,8 @@ import { Controller } from 'react-hook-form';
 import { FormItem } from '../../types/form';
 import { Dropdown, DropdownProps } from 'primereact/dropdown';
 
-const FormSelect = ({ ...props }: FormItem & Omit<DropdownProps, 'name'>) => {
+export type FormSelectProps = FormItem & Omit<DropdownProps, 'name'>;
+const FormSelect = ({ ...props }: FormSelectProps) => {
     const { name, control, label, ...rest } = props;
 
     return (
@@ -21,7 +22,7 @@ const FormSelect = ({ ...props }: FormItem & Omit<DropdownProps, 'name'>) => {
                             'p-invalid': !!fieldState.error?.message
                         })}
                     />
-                    {!!fieldState.error?.message && <small className="p-invalid">{fieldState.error.message}</small>}
+                    {!!fieldState.error?.message && <small className="text-red-500">{fieldState.error.message}</small>}
                 </div>
             )}
         />

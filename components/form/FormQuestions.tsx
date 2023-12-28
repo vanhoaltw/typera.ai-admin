@@ -1,17 +1,50 @@
 import React, { useState } from 'react';
 import { FormItem } from '../../types/form';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Control, Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button } from 'primereact/button';
 import FormUpload from './FormUpload';
 import FormInput from './FormInput';
 import { Dialog } from 'primereact/dialog';
+import FormTextarea from './FormTextarea';
+import FormSelect from './FormSelect';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { InputText } from 'primereact/inputtext';
 
-const DialogQuestion = ({ visible, onChange, onDismiss, defaultValues }: { visible: boolean; onChange: (values: any) => void; onDismiss: () => void; defaultValues?: any }) => {
-    const { control, handleSubmit } = useForm({
-        defaultValues
-    });
+const QUESTION_TYPE = {
+    RADIO: 'radio',
+    TEXT: 'text'
+};
 
-    const isEditQuestion = !!defaultValues;
+const questionSchema = z.object({
+    question: z.string().min(1, { message: 'Required' }),
+    question_type: z.string().min(1, { message: 'Required' })
+});
+
+const AnswerRadio = ({ control, name }: { control: Control; name: string }) => {
+    const { fields, append, remove } = useFieldArray({ control, name });
+
+    return (
+        <div className="grid mb-3">
+            {fields.map((i: any, idx) => (
+                <div key={i.id} className="col-3">
+                    <span className="p-input-icon-right">
+                        <i className="pi pi-trash text-red-400 cursor-pointer" onClick={() => remove(idx)} />
+                        <Controller name={`${name}.${idx}`} control={control} render={({ field }) => <InputText {...field} placeholder={`Answer ${idx + 1}`} />} />
+                    </span>
+                </div>
+            ))}
+            <div className="col-3">
+                <Button outlined className="truncate col-3" label="Add answer" onClick={() => append('')} />
+            </div>
+        </div>
+    );
+};
+
+const DialogEditQuestion = ({ visible, onChange, onDismiss, defaultValues }: { visible: boolean; onChange: (values: any) => void; onDismiss: () => void; defaultValues?: any }) => {
+    const { control, handleSubmit, watch } = useForm({ defaultValues, resolver: zodResolver(questionSchema) });
+    const [questionType] = watch(['question_type']);
+    const isEditQuestion = !!defaultValues?.id;
 
     const onSubmit = (values: any) => {
         onChange(values);
@@ -21,7 +54,7 @@ const DialogQuestion = ({ visible, onChange, onDismiss, defaultValues }: { visib
     return (
         <Dialog
             visible={visible}
-            style={{ maxWidth: '450px', width: '100%' }}
+            style={{ maxWidth: '550px', width: '100%' }}
             header={!isEditQuestion ? 'Add Question' : 'Edit Question'}
             modal
             className="p-fluid"
@@ -33,8 +66,10 @@ const DialogQuestion = ({ visible, onChange, onDismiss, defaultValues }: { visib
                 </>
             }
         >
-            <FormInput label="Question" control={control} name="text" className="mb-2" />
-            <FormUpload label="Image" control={control} name="image" width="200" />
+            <FormTextarea rows={3} label="Question" control={control} name="question" className="mb-2" />
+            <FormSelect label="Type" options={Object.values(QUESTION_TYPE)} control={control} name="question_type" />
+            {questionType === QUESTION_TYPE.RADIO && <AnswerRadio control={control} name="answer_options" />}
+            <FormUpload label="Image" control={control} name="image_id" width="300px" height="200px" />
         </Dialog>
     );
 };
@@ -56,17 +91,17 @@ const FormQuestions = ({ control, name }: FormItem) => {
         <div className="flex flex-column" style={{ rowGap: 10 }}>
             {fields.map((i: any, idx) => (
                 <div key={i.id} className="flex justify-content-between border-bottom-1 border-100 pb-1">
-                    <span>{i?.text}</span>
-                    <div>
+                    <span className="truncate">{i?.question}</span>
+                    <div className="flex-shrink-0 ml-4">
                         <Button onClick={() => remove(idx)} icon="pi pi-trash" text style={{ fontSize: '1rem', height: 8, width: 20, marginRight: 4 }} severity="secondary" />
-                        <Button onClick={() => setSelected(i)} icon="pi pi-eye text-primary-600" text style={{ fontSize: '1rem', height: 8, width: 20 }} />
+                        <Button onClick={() => setSelected(i)} icon="pi pi-pencil" text style={{ fontSize: '1rem', height: 8, width: 20 }} />
                     </div>
                 </div>
             ))}
 
             <Button onClick={() => setSelected({})} text size="small" icon="pi pi-plus-circle" label="Add" className="p-2" style={{ width: 'fit-content', height: 24 }} />
 
-            {selected && <DialogQuestion visible onDismiss={() => setSelected(null)} defaultValues={selected} onChange={handleSave} />}
+            {selected && <DialogEditQuestion visible onDismiss={() => setSelected(null)} defaultValues={selected} onChange={handleSave} />}
         </div>
     );
 };

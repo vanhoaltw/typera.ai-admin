@@ -6,6 +6,7 @@ import { PrimeReactProvider } from 'primereact/api';
 import { ApolloProvider } from '@apollo/client';
 import { useApollo } from '../configs/apolloClient';
 import { Session } from 'next-auth';
+import { Toaster } from 'react-hot-toast';
 
 const Provider = ({ children, session }: { children: ReactNode; session: Session | null }) => {
     const apolloClient = useApollo();
@@ -14,6 +15,7 @@ const Provider = ({ children, session }: { children: ReactNode; session: Session
         <NextAuthProvider session={session}>
             <ApolloProvider client={apolloClient}>
                 <PrimeReactProvider>
+                    <Toaster />
                     <LayoutProvider>{children}</LayoutProvider>
                 </PrimeReactProvider>
             </ApolloProvider>

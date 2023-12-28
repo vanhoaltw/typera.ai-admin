@@ -3,15 +3,15 @@ import { classNames } from 'primereact/utils';
 import { Controller } from 'react-hook-form';
 import { FormItem } from '../../types/form';
 
-const FormInput = ({ ...props }: FormItem & Omit<InputTextProps, 'name'>) => {
-    const { name, control, label, ...rest } = props;
+const FormInput = ({ ...props }: FormItem & Omit<InputTextProps, 'name'> & { rootClassName?: string }) => {
+    const { name, control, label, rootClassName, ...rest } = props;
 
     return (
         <Controller
             name={name}
             control={control}
             render={({ field, fieldState }) => (
-                <div className="field">
+                <div className={classNames('field', rootClassName)}>
                     {label && <label htmlFor={name}>{label}</label>}
                     <InputText
                         id={name}

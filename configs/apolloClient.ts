@@ -1,20 +1,27 @@
-import { ApolloClient, HttpLink, InMemoryCache, from } from '@apollo/client';
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+import { onError } from '@apollo/client/link/error';
+
 import { isEqual } from 'lodash';
 import merge from 'lodash/merge';
-import { setContext } from '@apollo/client/link/context';
-import { getCurrentUser } from './auth';
 import { useMemo } from 'react';
+import { deleteToken, getToken } from '../utils/session';
+import { signOut } from 'next-auth/react';
+import { API_GRAPHQL_URI } from './env';
 
 let apolloClient: any;
+
 const ssrMode = typeof window === 'undefined';
-const getToken = async () => getCurrentUser().then((res) => res?.accessToken);
-const uri = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+const logoutIfLogged = () => {
+    signOut();
+    deleteToken();
+};
 
 const createApolloClient = () => {
-    const httpLink = new HttpLink({ uri });
+    const httpLink = new HttpLink({ uri: API_GRAPHQL_URI });
 
-    const authLink = setContext(async (_, { headers }) => {
-        const token = await getToken();
+    const authLink = setContext((_, { headers }) => {
+        const token = getToken();
         return {
             headers: {
                 ...headers,
@@ -23,9 +30,28 @@ const createApolloClient = () => {
         };
     });
 
+    const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+        if (graphQLErrors) {
+            for (let err of graphQLErrors) {
+                switch (err.extensions.code) {
+                    case 'UNAUTHENTICATED':
+                        if (getToken()) {
+                            logoutIfLogged();
+                            return;
+                        } else {
+                            return forward(operation);
+                        }
+                }
+            }
+        }
+        if (networkError) {
+            console.log(`[Network error]: ${networkError}`);
+        }
+    });
+
     return new ApolloClient({
         ssrMode,
-        link: from([authLink, httpLink]),
+        link: ApolloLink.from([authLink, errorLink, httpLink]),
         connectToDevTools: process.env.NODE_ENV !== 'production',
         ssrForceFetchDelay: 100,
         cache: new InMemoryCache({

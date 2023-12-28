@@ -21,7 +21,7 @@ const FormTextarea = ({ ...props }: FormItem & Omit<InputTextareaProps, 'name'>)
                             'p-invalid': !!fieldState.error?.message
                         })}
                     />
-                    {!!fieldState.error?.message && <small className="p-invalid">{fieldState.error.message}</small>}
+                    {!!fieldState.error?.message && <small className="text-red-500">{fieldState.error.message}</small>}
                 </div>
             )}
         />

@@ -51,14 +51,14 @@ const LoginPage = () => {
             });
         } else {
             setSubmitting(false);
-
             toast.current?.show({
                 severity: 'success',
-                summary: 'Welcome back',
+                summary: 'Login successful',
+                detail: 'Welcome back',
                 life: 3000
             });
             setTimeout(() => {
-                router.push('/');
+                router.push(res?.url || '/');
             }, 1000);
         }
     };

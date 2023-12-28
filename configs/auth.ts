@@ -2,9 +2,11 @@ import { NextAuthOptions, getServerSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { initializeApollo } from './apolloClient';
 import { LOGIN } from '../graphql/mutation';
+import { tokenKey } from '../utils/session';
+import { cookies } from 'next/headers';
 
 const secret = process.env.NEXTAUTH_SECRET || process.env.NEXT_PUBLIC_NEXTAUTH_SECRET;
-console.log('secret');
+
 const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
@@ -30,6 +32,7 @@ const authOptions: NextAuthOptions = {
                 if (!user) {
                     throw new Error(user.message);
                 } else {
+                    cookies().set(tokenKey, user?.token, { path: '/', maxAge: 180 * 24 * 60 * 60 });
                     return user;
                 }
             }
