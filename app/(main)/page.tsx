@@ -1,11 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { useMemo, useRef, useState } from 'react';
-import { Toast } from 'primereact/toast';
 import CreateProject from '../../components/projects/CreateProject';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_REASEARCH_LISH } from '../../graphql/query';
@@ -15,17 +13,15 @@ import { confirmPopup } from 'primereact/confirmpopup';
 import { InputText } from 'primereact/inputtext';
 import { useFilter } from '../../hooks/useFilter';
 import { OPERATOR } from '../../configs/constant';
-import { Menu } from 'primereact/menu';
-import { DELETE_RESEARCH } from '../../graphql/mutation';
+import { DELETE_RESEARCH, UPDATE_RESEARCH } from '../../graphql/mutation';
 
 const defaultPageSize = 10;
 
 const Dashboard = () => {
-    const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [selectedRows, setSelectedRows] = useState<any>(null);
     const { query, onSearch } = useFilter(['search', 'page', 'pageSize']);
-    const menuRef = useRef<Menu>(null);
+    const [doUpdate] = useMutation(UPDATE_RESEARCH);
     const [doDelete, { loading: deleteloading }] = useMutation(DELETE_RESEARCH);
 
     const filters = useMemo(() => [{ field: 'name', operator: OPERATOR.contains, value: query?.search }].filter((i) => !!i.value), [query?.search]);
@@ -44,7 +40,22 @@ const Dashboard = () => {
     const items = data?.getResearchList?.results || [];
     const total = data?.getResearchList?.total || 0;
 
+    const onConfirmRePublished = (event: any, id: string, status: string) => {
+        confirmPopup({
+            target: event.currentTarget,
+            message: 'Are you sure to re-open this research?',
+            icon: 'pi pi-replay text-green-500',
+            accept: () => {
+                return doUpdate({
+                    variables: { updateResearchId: id, input: { status } },
+                    refetchQueries: [GET_REASEARCH_LISH]
+                });
+            }
+        });
+    };
+
     const onConfirmDelete = (event: any, id: string) => {
+        if (deleteloading) return;
         confirmPopup({
             target: event.currentTarget,
             message: 'Are you sure you want to delete?',
@@ -62,8 +73,6 @@ const Dashboard = () => {
         <div className="grid crud-demo">
             <div className="col-12">
                 <div className="card">
-                    <Toast ref={toast} />
-
                     <DataTable
                         ref={dt}
                         value={items}
@@ -87,7 +96,7 @@ const Dashboard = () => {
                             <div className="flex justify-content-end">
                                 <div className="p-input-icon-left mr-3">
                                     <i className="pi pi-search" />
-                                    <InputText onChange={(e) => onSearch({ search: e.target.value.trim(), page: 0 })} placeholder="Search" />
+                                    <InputText defaultValue={query?.search || ''} onChange={(e) => onSearch({ search: e.target.value.trim(), page: 0 })} placeholder="Search" />
                                 </div>
                                 <Button onClick={() => setSelectedRows({})} icon="pi pi-plus" label="Create" />
                             </div>
@@ -99,16 +108,35 @@ const Dashboard = () => {
                         <Column field="uuid" header="ID" headerStyle={{ minWidth: '6rem' }} />
                         <Column header="Date" body={(rowData) => dayjs(rowData?.created).format('DD/MM/YYYY')} headerStyle={{ minWidth: '4rem' }} />
                         <Column field="title" header="Name" headerStyle={{ minWidth: '15rem' }} />
+                        <Column
+                            field="status"
+                            header="Status"
+                            body={(rowData) => {
+                                switch (rowData?.status) {
+                                    case 'deleted':
+                                        return <div className="text-400">Deleted</div>;
+                                    case 'published':
+                                        return <div className="text-green-500">Published</div>;
+                                    default:
+                                        return rowData.status;
+                                }
+                            }}
+                        />
+                        <Column header="Download" body={() => <Button outlined icon="pi pi-download" size="small" />} headerStyle={{ minWidth: '6rem' }} />
                         <Column field="totalThread" header="Views" headerStyle={{ minWidth: '6rem' }} />
                         <Column header="Download" body={() => <Button outlined icon="pi pi-download" size="small" />} headerStyle={{ minWidth: '6rem' }} />
-                        {/* <Column
+                        <Column
                             header=""
                             body={(rowData) => (
                                 <div>
-                                    <Button text severity="secondary" icon="pi pi-trash" onClick={(e) => onConfirmDelete(e, rowData.uuid)} />
+                                    {rowData?.status !== 'published' ? (
+                                        <Button onClick={(e) => onConfirmRePublished(e, rowData.id, 'published')} text severity="secondary" icon="pi pi-replay" />
+                                    ) : (
+                                        <Button text severity="danger" icon="pi pi-trash" onClick={(e) => onConfirmDelete(e, rowData.id)} />
+                                    )}
                                 </div>
                             )}
-                        /> */}
+                        />
                     </DataTable>
 
                     <CreateProject visible={!!selectedRows} defaultValues={selectedRows} onDismiss={() => setSelectedRows(null)} />

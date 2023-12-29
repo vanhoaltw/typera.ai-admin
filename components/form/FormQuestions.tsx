@@ -82,7 +82,7 @@ const DialogEditQuestion = ({ visible, onChange, onDismiss, defaultValues }: { v
             <FormTextarea rows={3} label="Question" control={control} name="question" className="mb-2" />
             <FormSelect label="Type" options={Object.values(QUESTION_TYPE)} control={control} name="question_type" />
             {questionType === QUESTION_TYPE.RADIO && <AnswerRadio control={control} name="answer_options" />}
-            <FormUpload label="Image" control={control} name="image_id" width="300px" height="200px" />
+            <FormUpload label="Image" style={{ objectFit: 'contain' }} control={control} name="image_id" width="300px" height="200px" />
         </Dialog>
     );
 };
