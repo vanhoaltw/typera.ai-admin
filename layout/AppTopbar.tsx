@@ -16,7 +16,6 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     const menuRef = useRef<Menu>(null);
 
     const session = useSession();
-    const isLoading = session.status === 'loading';
 
     useImperativeHandle(ref, () => ({
         menubutton: menubuttonRef.current,

@@ -7,13 +7,16 @@ import { DataTable } from 'primereact/datatable';
 import { useMemo, useRef, useState } from 'react';
 import { Toast } from 'primereact/toast';
 import CreateProject from '../../components/projects/CreateProject';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_REASEARCH_LISH } from '../../graphql/query';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import dayjs from 'dayjs';
+import { confirmPopup } from 'primereact/confirmpopup';
 import { InputText } from 'primereact/inputtext';
 import { useFilter } from '../../hooks/useFilter';
 import { OPERATOR } from '../../configs/constant';
+import { Menu } from 'primereact/menu';
+import { DELETE_RESEARCH } from '../../graphql/mutation';
 
 const defaultPageSize = 10;
 
@@ -22,6 +25,8 @@ const Dashboard = () => {
     const dt = useRef<DataTable<any>>(null);
     const [selectedRows, setSelectedRows] = useState<any>(null);
     const { query, onSearch } = useFilter(['search', 'page', 'pageSize']);
+    const menuRef = useRef<Menu>(null);
+    const [doDelete, { loading: deleteloading }] = useMutation(DELETE_RESEARCH);
 
     const filters = useMemo(() => [{ field: 'name', operator: OPERATOR.contains, value: query?.search }].filter((i) => !!i.value), [query?.search]);
     const pageSize = Number(query?.pageSize || defaultPageSize);
@@ -38,6 +43,20 @@ const Dashboard = () => {
 
     const items = data?.getResearchList?.results || [];
     const total = data?.getResearchList?.total || 0;
+
+    const onConfirmDelete = (event: any, id: string) => {
+        confirmPopup({
+            target: event.currentTarget,
+            message: 'Are you sure you want to delete?',
+            icon: 'pi pi-exclamation-triangle text-red-500',
+            accept: () => {
+                return doDelete({
+                    variables: { deleteResearchId: id },
+                    refetchQueries: [GET_REASEARCH_LISH]
+                });
+            }
+        });
+    };
 
     return (
         <div className="grid crud-demo">
@@ -82,6 +101,14 @@ const Dashboard = () => {
                         <Column field="title" header="Name" headerStyle={{ minWidth: '15rem' }} />
                         <Column field="totalThread" header="Views" headerStyle={{ minWidth: '6rem' }} />
                         <Column header="Download" body={() => <Button outlined icon="pi pi-download" size="small" />} headerStyle={{ minWidth: '6rem' }} />
+                        {/* <Column
+                            header=""
+                            body={(rowData) => (
+                                <div>
+                                    <Button text severity="secondary" icon="pi pi-trash" onClick={(e) => onConfirmDelete(e, rowData.uuid)} />
+                                </div>
+                            )}
+                        /> */}
                     </DataTable>
 
                     <CreateProject visible={!!selectedRows} defaultValues={selectedRows} onDismiss={() => setSelectedRows(null)} />

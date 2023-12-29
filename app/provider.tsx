@@ -7,6 +7,7 @@ import { ApolloProvider } from '@apollo/client';
 import { useApollo } from '../configs/apolloClient';
 import { Session } from 'next-auth';
 import { Toaster } from 'react-hot-toast';
+import { ConfirmPopup } from 'primereact/confirmpopup';
 
 const Provider = ({ children, session }: { children: ReactNode; session: Session | null }) => {
     const apolloClient = useApollo();
@@ -16,6 +17,7 @@ const Provider = ({ children, session }: { children: ReactNode; session: Session
             <ApolloProvider client={apolloClient}>
                 <PrimeReactProvider>
                     <Toaster />
+                    <ConfirmPopup />
                     <LayoutProvider>{children}</LayoutProvider>
                 </PrimeReactProvider>
             </ApolloProvider>

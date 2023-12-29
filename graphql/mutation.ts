@@ -30,3 +30,9 @@ export const UPDATE_RESEARCH = gql`
     }
     ${FRAGMENT_RESEARCH}
 `;
+
+export const DELETE_RESEARCH = gql`
+    mutation DeleteResearch($deleteResearchId: Int!) {
+        deleteResearch(id: $deleteResearchId)
+    }
+`;

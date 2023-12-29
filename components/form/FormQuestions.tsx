@@ -10,11 +10,20 @@ import FormSelect from './FormSelect';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { InputText } from 'primereact/inputtext';
+import { v4 as uuidv4 } from 'uuid';
 
 const QUESTION_TYPE = {
     RADIO: 'radio',
     TEXT: 'text'
 };
+
+interface QuestionProps {
+    question_type: string;
+    question: string;
+    image_id: string;
+    id: string;
+    answer_options: string[] | string;
+}
 
 const questionSchema = z.object({
     question: z.string().min(1, { message: 'Required' }),
@@ -46,8 +55,12 @@ const DialogEditQuestion = ({ visible, onChange, onDismiss, defaultValues }: { v
     const [questionType] = watch(['question_type']);
     const isEditQuestion = !!defaultValues?.id;
 
-    const onSubmit = (values: any) => {
-        onChange(values);
+    const onSubmit = (values: QuestionProps) => {
+        const params = {
+            ...values,
+            id: values?.id || uuidv4()
+        };
+        onChange(params);
         onDismiss();
     };
 
