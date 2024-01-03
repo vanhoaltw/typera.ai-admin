@@ -16,7 +16,7 @@ import { OPERATOR } from '../../configs/constant';
 import { DELETE_RESEARCH, UPDATE_RESEARCH } from '../../graphql/mutation';
 
 const defaultPageSize = 10;
-const webClientUrl = process.env.NEXT_PUBLIC_WEB_URL;
+const webClientUrl = process.env.WEB_URL || process.env.NEXT_PUBLIC_WEB_URL;
 
 const Dashboard = () => {
     const dt = useRef<DataTable<any>>(null);
