@@ -41,7 +41,7 @@ export const useUpload = () => {
                         resolve?.(imageUrl);
                     })
                     .catch((err) => {
-                        if (err?.message === 'Failed to fetch') toast.error('File too large');
+                        toast.error(err?.message);
                         setState((pre) => ({ ...pre, loading: false }));
                     });
             } else {

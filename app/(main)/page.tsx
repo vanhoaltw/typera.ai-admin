@@ -16,6 +16,7 @@ import { OPERATOR } from '../../configs/constant';
 import { DELETE_RESEARCH, UPDATE_RESEARCH } from '../../graphql/mutation';
 
 const defaultPageSize = 10;
+const webClientUrl = process.env.NEXT_PUBLIC_WEB_URL;
 
 const Dashboard = () => {
     const dt = useRef<DataTable<any>>(null);
@@ -105,9 +106,17 @@ const Dashboard = () => {
                     >
                         <Column headerStyle={{ width: '4rem' }}></Column>
                         <Column field="index" header="#" body={(_, options) => options.rowIndex + 1} headerStyle={{ minWidth: '6rem' }} />
-                        <Column field="uuid" header="ID" headerStyle={{ minWidth: '6rem' }} />
+                        <Column field="id" header="ID" headerStyle={{ minWidth: '6rem' }} />
                         <Column header="Date" body={(rowData) => dayjs(rowData?.created).format('DD/MM/YYYY')} headerStyle={{ minWidth: '4rem' }} />
-                        <Column field="title" header="Name" headerStyle={{ minWidth: '15rem' }} />
+                        <Column
+                            header="Name"
+                            headerStyle={{ minWidth: '15rem' }}
+                            body={(rowData) => (
+                                <a target="_blank" href={`${webClientUrl}/interview/${rowData?.uuid}`} className="text-blue-500">
+                                    {rowData?.title}
+                                </a>
+                            )}
+                        />
                         <Column
                             field="status"
                             header="Status"

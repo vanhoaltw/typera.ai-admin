@@ -3,7 +3,6 @@ import { FormItem } from '../../types/form';
 import { Control, Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button } from 'primereact/button';
 import FormUpload from './FormUpload';
-import FormInput from './FormInput';
 import { Dialog } from 'primereact/dialog';
 import FormTextarea from './FormTextarea';
 import FormSelect from './FormSelect';
@@ -51,11 +50,12 @@ const AnswerRadio = ({ control, name }: { control: Control; name: string }) => {
 };
 
 const DialogEditQuestion = ({ visible, onChange, onDismiss, defaultValues }: { visible: boolean; onChange: (values: any) => void; onDismiss: () => void; defaultValues?: any }) => {
-    const { control, handleSubmit, watch } = useForm({ defaultValues, resolver: zodResolver(questionSchema) });
+    const { control, handleSubmit, watch, getValues } = useForm({ defaultValues: { question_type: QUESTION_TYPE.TEXT, ...defaultValues }, resolver: zodResolver(questionSchema) });
     const [questionType] = watch(['question_type']);
     const isEditQuestion = !!defaultValues?.id;
 
-    const onSubmit = (values: QuestionProps) => {
+    const onSubmit = () => {
+        const values = getValues();
         const params = {
             ...values,
             id: values?.id || uuidv4()

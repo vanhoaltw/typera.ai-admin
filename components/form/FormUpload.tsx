@@ -20,6 +20,7 @@ const FormUpload = ({ ...props }: FormItem & ImageProps) => {
                     const files = (event.target as HTMLInputElement).files?.[0] as File;
                     const results = await onUpload(files);
                     if (results) field.onChange(results);
+                    event.target.value = '';
                 };
 
                 return (
