@@ -82,7 +82,7 @@ const CreateProject = ({ visible, onDismiss, defaultValues }: { visible: boolean
     return (
         <Dialog visible={visible} style={{ maxWidth: '650px', width: '100%' }} header={isEdit ? 'Edit' : 'Create New Project'} modal className="p-fluid" onHide={onDismiss}>
             <FormInput label="Name" name="title" control={control} />
-            <FormUpload label="Logo" name="brand" control={control} height="120px" width="180px" />
+            <FormUpload style={{ objectFit: 'contain' }} label="Logo" name="brand" control={control} height="120px" width="180px" />
             <FormSelectAssistant label="Assistant" name="assignedTo" control={control} />
             {/* <FormSelect label="Language" name="language" control={control} options={languageOptions} /> */}
             <FormTextarea rows={8} label="Instructor" name="instruction" control={control} />

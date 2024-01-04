@@ -106,7 +106,7 @@ const Dashboard = () => {
                     >
                         <Column headerStyle={{ width: '4rem' }}></Column>
                         <Column field="index" header="#" body={(_, options) => options.rowIndex + 1} headerStyle={{ minWidth: '6rem' }} />
-                        <Column field="id" header="ID" headerStyle={{ minWidth: '6rem' }} />
+                        <Column field="uuid" header="ID" headerStyle={{ minWidth: '6rem' }} />
                         <Column header="Date" body={(rowData) => dayjs(rowData?.created).format('DD/MM/YYYY')} headerStyle={{ minWidth: '4rem' }} />
                         <Column
                             header="Name"
