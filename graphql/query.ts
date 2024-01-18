@@ -20,3 +20,22 @@ export const ASSISTANT_LIST = gql`
         getAssistantList
     }
 `;
+
+export const GET_RESEARCH_RESULT_LIST = gql`
+    query GetResearchResultList($filter: JSON, $pageSize: Int, $page: Int) {
+        getResearchResultList(filter: $filter, pageSize: $pageSize, page: $page) {
+            pageSize
+            results {
+                uuid
+                updated
+                id
+                messages
+                identifier
+                isCompleted
+                created
+            }
+            total
+            currentPage
+        }
+    }
+`;

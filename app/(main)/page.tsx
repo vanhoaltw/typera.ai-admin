@@ -14,6 +14,7 @@ import { InputText } from 'primereact/inputtext';
 import { useFilter } from '../../hooks/useFilter';
 import { OPERATOR } from '../../configs/constant';
 import { DELETE_RESEARCH, UPDATE_RESEARCH } from '../../graphql/mutation';
+import ButtonDowload from '../../components/ButtonDowload';
 
 const defaultPageSize = 10;
 const webClientUrl = process.env.WEB_URL || process.env.NEXT_PUBLIC_WEB_URL;
@@ -131,9 +132,8 @@ const Dashboard = () => {
                                 }
                             }}
                         />
-                        <Column header="Download" body={() => <Button outlined icon="pi pi-download" size="small" />} headerStyle={{ minWidth: '6rem' }} />
                         <Column field="totalThread" header="Views" headerStyle={{ minWidth: '6rem' }} />
-                        <Column header="Download" body={() => <Button outlined icon="pi pi-download" size="small" />} headerStyle={{ minWidth: '6rem' }} />
+                        <Column header="Download" body={(rowData) => <ButtonDowload researchId={rowData?.id} />} headerStyle={{ minWidth: '6rem' }} />
                         <Column
                             header=""
                             body={(rowData) => (
